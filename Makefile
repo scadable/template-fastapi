@@ -1,10 +1,15 @@
 # ------------------------------------------------------------------------------
 # Phony targets and set up
 # ------------------------------------------------------------------------------
-.PHONY: help runserver setup install uninstall freeze lint test
+# List of known targets to exclude
+KNOWN_TARGETS := help setup lint install uninstall freeze docker-up db-up db-down db-shell status dev-up dev-down migrate test
 
-# collect extra words after the target name
-ARGS := $(filter-out help setup lint install uninstall freeze docker-up db-up db-down db-shell status dev-up dev-down migrate test,$(MAKECMDGOALS))
+# Declare known targets (not KNOWN_TARGETS itself) as phony
+.PHONY: $(KNOWN_TARGETS)
+
+# ARGS are everything passed to make, except known targets
+ARGS := $(filter-out $(KNOWN_TARGETS),$(MAKECMDGOALS))
+
 
 
 
@@ -14,9 +19,22 @@ ARGS := $(filter-out help setup lint install uninstall freeze docker-up db-up db
 help:
 	@echo "Makefile for managing the project"
 	@echo ""
-	@echo "Available targets:"
 	@echo "  help        - Show this help text"
+	@echo ""
+	@echo "Environment targets:"
+	@echo "  setup       - Set up the environment"
+	@echo "  install     - Install dependencies"
+	@echo "  uninstall   - Uninstall dependencies"
+	@echo "  freeze      - Freeze current environment into requirements.txt"
+	@echo ""
+	@echo "Server targets:"
 	@echo "  runserver   - Run the web server"
+	@echo ""
+	@echo "Quality targets:"
+	@echo "  lint        - Run code quality checks"
+	@echo "  test        - Run tests"
+	@echo ""
+
 
 # ------------------------------------------------------------------------------
 # Environment Related Targets
@@ -80,3 +98,10 @@ lint:
 # ------------------------------------------------------------------------------
 # Database Related Targets
 # ------------------------------------------------------------------------------
+
+
+# ------------------------------------------------------------------------------
+# Other
+# ------------------------------------------------------------------------------
+$(ARGS):
+	@:
