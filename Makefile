@@ -68,7 +68,9 @@ runserver:
 # ------------------------------------------------------------------------------
 test:
 	@echo "Running tests with pytest"
-	@python -m pytest
+	@pytest
+	@echo "Removing coverage data files"
+	@rm -rf .coverage
 
 lint:
 	@echo "Running flake8…"
