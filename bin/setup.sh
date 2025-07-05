@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
 
+
+set -euo pipefail
+
 # This script is incharge of setting up the environment for the project
 PYTHON_VERSION="3.12"
 VENV_PATH="./venv/bin/activate"
 DB_COMPOSE_FILE="./infra/local/docker-compose.db.yaml"
+
 
 
 
@@ -106,7 +110,12 @@ setup_database() {
         printf "Failed to start the database. Please check your docker-compose file.\n" >&2
         return 1
     fi
+
+    # Wait for the database to become healthy
+    # ToDO: implement a health check for the database
+
 }
+
 
 
 main() {

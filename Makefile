@@ -2,7 +2,7 @@
 # Phony targets and set up
 # ------------------------------------------------------------------------------
 # List of known targets to exclude
-KNOWN_TARGETS := help setup lint install uninstall freeze docker-up db-up db-down db-shell status dev-up dev-down migrate test
+KNOWN_TARGETS := help setup lint install uninstall freeze docker-up db-up db-down db-shell status dev-up dev-down migrate test runserver
 
 # Declare known targets (not KNOWN_TARGETS itself) as phony
 .PHONY: $(KNOWN_TARGETS)

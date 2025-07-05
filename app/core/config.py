@@ -3,7 +3,9 @@ Centralised application settings, loaded from .env via Pydantic.
 """
 
 from functools import lru_cache
-from pydantic import BaseSettings, Field, PostgresDsn
+from pydantic_settings import BaseSettings
+from pydantic import Field
+from pydantic.networks import PostgresDsn
 
 
 class Settings(BaseSettings):
