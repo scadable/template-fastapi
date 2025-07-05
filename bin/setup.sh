@@ -3,6 +3,7 @@
 # This script is incharge of setting up the environment for the project
 PYTHON_VERSION="3.12"
 VENV_PATH="./venv/bin/activate"
+DB_COMPOSE_FILE="./infra/local/docker-compose.db.yaml"
 
 
 
@@ -68,6 +69,45 @@ install_dependencies() {
     fi
 }
 
+# Create .env file
+create_env_file() {
+    local env_file=".env"
+
+    if [[ -f "$env_file" ]]; then
+        printf "Environment file '%s' already exists. Skipping creation.\n" "$env_file"
+    else
+        printf "Creating environment file '%s'.\n" "$env_file"
+        cp .env.sample "$env_file" || {
+            printf "Failed to copy .env.example to .env. Please check the file path.\n" >&2
+            return 1
+        }
+    fi
+}
+
+# Set Up the Database
+setup_database() {
+    printf "Setting up the database...\n"
+
+    # Check if docker is installed
+    if ! command -v docker &> /dev/null; then
+        printf "Docker is not installed. Please install Docker to set up the database.\n" >&2
+        return 1
+    fi
+
+    # check if the db compose file exists
+    if [[ ! -f "$DB_COMPOSE_FILE" ]]; then
+        printf "Database compose file '%s' does not exist. Please check the path.\n" "$DB_COMPOSE_FILE" >&2
+        return 1
+    fi
+
+    # Start the database using docker-compose
+    printf "Starting the database using docker-compose...\n"
+    if ! docker compose -f "$DB_COMPOSE_FILE" up -d; then
+        printf "Failed to start the database. Please check your docker-compose file.\n" >&2
+        return 1
+    fi
+}
+
 
 main() {
     if ! setup_python; then
@@ -82,6 +122,16 @@ main() {
 
     if ! install_dependencies; then
         printf "Dependency installation failed.\n" >&2
+        return 1
+    fi
+
+    if ! create_env_file; then
+        printf "Environment file creation failed.\n" >&2
+        return 1
+    fi
+
+    if ! setup_database; then
+        printf "Database setup failed.\n" >&2
         return 1
     fi
 }
