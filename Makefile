@@ -4,10 +4,10 @@
 # List of known targets to exclude
 KNOWN_TARGETS := help \
 	setup cleanup \
-	 install uninstall freeze \
-	 runserver \
-	 lint test \
-	 db-up db-down db-shell db-setup migrate upgrade
+	install uninstall freeze \
+	runserver \
+	lint test \
+	db-up db-down db-shell db-setup migrate upgrade
 
 # Declare known targets (not KNOWN_TARGETS itself) as phony
 .PHONY: $(KNOWN_TARGETS)
@@ -17,7 +17,8 @@ ARGS := $(filter-out $(KNOWN_TARGETS),$(MAKECMDGOALS))
 
 DB_COMPOSE_FILE := ./infra/local/docker-compose.db.yaml
 
-
+# Default target
+.DEFAULT_GOAL := help
 
 
 # ------------------------------------------------------------------------------
@@ -30,8 +31,9 @@ help:
 	@echo ""
 	@echo "Environment targets:"
 	@echo "  setup       - Set up the environment"
-	@echo "  install     - Install dependencies"
-	@echo "  uninstall   - Uninstall dependencies"
+	@echo "  cleanup     - Clean up environment artifacts"
+	@echo "  install     - Install dependencies (or specific packages via ARGS)"
+	@echo "  uninstall   - Uninstall dependencies (or specific packages via ARGS)"
 	@echo "  freeze      - Freeze current environment into requirements.txt"
 	@echo ""
 	@echo "Server targets:"
@@ -40,6 +42,14 @@ help:
 	@echo "Quality targets:"
 	@echo "  lint        - Run code quality checks"
 	@echo "  test        - Run tests"
+	@echo ""
+	@echo "Database targets:"
+	@echo "  db-up       - Start the database container"
+	@echo "  db-down     - Stop and remove the database container"
+	@echo "  db-shell    - Open a psql shell in the database container"
+	@echo "  db-setup    - Ensure DB is running and apply migrations"
+	@echo "  migrate     - Create a new Alembic migration (usage: make migrate m=\"description\")"
+	@echo "  upgrade     - Apply all pending Alembic migrations"
 	@echo ""
 
 
@@ -70,7 +80,6 @@ else
 endif
 	@$(MAKE) freeze
 
-# uninstall dependencies
 uninstall:
 ifneq ($(ARGS),)
 	@echo "Uninstalling package(s): $(ARGS)"
@@ -81,7 +90,6 @@ else
 endif
 	@$(MAKE) freeze
 
-# freeze: capture current env into requirements.txt
 freeze:
 	@echo "Freezing installed packages into requirements.txt"
 	@pip freeze > requirements.txt
@@ -93,7 +101,6 @@ freeze:
 runserver:
 	@echo "Running server..."
 	uvicorn app.main:app --reload
-
 
 
 # ------------------------------------------------------------------------------
@@ -110,6 +117,7 @@ lint:
 	@flake8 app tests --max-line-length=88
 	@echo "✔️  Lint passed"
 
+
 # ------------------------------------------------------------------------------
 # Database Related Targets
 # ------------------------------------------------------------------------------
@@ -123,8 +131,8 @@ db-shell:  ## psql inside the running container
 	docker compose -f $(DB_COMPOSE_FILE) exec db psql -U "postgres" "postgres"
 
 db-setup:  ## Start DB (if needed) & run alembic upgrade head
-	chmod +x bin/migrate.sh        ### NEW
-	bin/migrate.sh                 ### NEW
+	chmod +x bin/migrate.sh
+	bin/migrate.sh
 
 migrate:   ## Create a new autogen revision: make migrate m="add_users_table"
 ifndef m
@@ -135,8 +143,9 @@ endif
 upgrade:   ## Apply all pending migrations
 	alembic upgrade head
 
+
 # ------------------------------------------------------------------------------
-# Other
+# Pass-through for ARGS
 # ------------------------------------------------------------------------------
 $(ARGS):
 	@:
