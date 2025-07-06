@@ -7,12 +7,15 @@ KNOWN_TARGETS := help \
 	 install uninstall freeze \
 	 runserver \
 	 lint test \
+	 db-up db-down db-shell db-setup migrate upgrade
 
 # Declare known targets (not KNOWN_TARGETS itself) as phony
 .PHONY: $(KNOWN_TARGETS)
 
 # ARGS are everything passed to make, except known targets
 ARGS := $(filter-out $(KNOWN_TARGETS),$(MAKECMDGOALS))
+
+DB_COMPOSE_FILE := ./infra/local/docker-compose.db.yaml
 
 
 
@@ -110,7 +113,27 @@ lint:
 # ------------------------------------------------------------------------------
 # Database Related Targets
 # ------------------------------------------------------------------------------
+db-up:  ## docker compose up -d db
+	docker compose -f $(DB_COMPOSE_FILE) up -d db
 
+db-down:  ## docker compose down
+	docker compose -f $(DB_COMPOSE_FILE) down
+
+db-shell:  ## psql inside the running container
+	docker compose -f $(DB_COMPOSE_FILE) exec db psql -U "postgres" "postgres"
+
+db-setup:  ## Start DB (if needed) & run alembic upgrade head
+	chmod +x bin/migrate.sh        ### NEW
+	bin/migrate.sh                 ### NEW
+
+migrate:   ## Create a new autogen revision: make migrate m="add_users_table"
+ifndef m
+	$(error Usage: make migrate m="your_message")
+endif
+	alembic revision --autogenerate -m "$(m)"
+
+upgrade:   ## Apply all pending migrations
+	alembic upgrade head
 
 # ------------------------------------------------------------------------------
 # Other
