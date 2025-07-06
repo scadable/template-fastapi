@@ -2,7 +2,11 @@
 # Phony targets and set up
 # ------------------------------------------------------------------------------
 # List of known targets to exclude
-KNOWN_TARGETS := help setup lint install uninstall freeze docker-up db-up db-down db-shell status dev-up dev-down migrate test runserver
+KNOWN_TARGETS := help \
+	setup cleanup \
+	 install uninstall freeze \
+	 runserver \
+	 lint test \
 
 # Declare known targets (not KNOWN_TARGETS itself) as phony
 .PHONY: $(KNOWN_TARGETS)
@@ -43,7 +47,15 @@ setup:
 	chmod +x ./bin/setup.sh
 	./bin/setup.sh
 
-# install dependencies
+cleanup:
+	@echo "Cleaning up directories..."
+	chmod +x ./bin/cleanup.sh
+	./bin/cleanup.sh
+
+
+# ------------------------------------------------------------------------------
+# Package Related Targets
+# ------------------------------------------------------------------------------
 install:
 	@pip install --upgrade pip
 ifneq ($(ARGS),)

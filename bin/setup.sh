@@ -116,6 +116,14 @@ setup_database() {
 
 }
 
+create_db_tables() {
+    printf "Creating database tables with alembic...\n"
+    if ! alembic upgrade head; then
+        printf "Failed to create database tables. Please check your alembic configuration.\n" >&2
+        return 1
+    fi
+}
+
 
 
 main() {
@@ -143,6 +151,15 @@ main() {
         printf "Database setup failed.\n" >&2
         return 1
     fi
+
+    if ! create_db_tables; then
+        printf "Database table creation failed.\n" >&2
+        return 1
+    fi
+
+    printf "Setup completed successfully.\n"
+    printf "You can now run the application using 'make runserver'\n"
+    printf "Note: This is for development purposes only. For production, please refer to the documentation.\n"
 }
 
 main
