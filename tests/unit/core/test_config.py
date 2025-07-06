@@ -53,4 +53,5 @@ class TestGetSettings:
         get_settings.cache_clear()
         s1 = get_settings()
         s2 = get_settings()
-        assert s1 is s2, "get_settings() should return the same object on repeated calls"
+        assert s1 is s2, ("get_settings() should return the same object on "
+                          "repeated calls")

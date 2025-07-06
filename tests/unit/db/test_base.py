@@ -1,5 +1,4 @@
 import sqlalchemy as sa
-import pytest
 from sqlalchemy import MetaData
 
 from app.db.base import Base
