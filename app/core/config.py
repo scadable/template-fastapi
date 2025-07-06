@@ -4,7 +4,7 @@ Centralised application settings, loaded from .env via Pydantic.
 
 from functools import lru_cache
 from pydantic_settings import BaseSettings
-from pydantic import Field
+from pydantic import Field, ConfigDict
 from pydantic.networks import PostgresDsn
 
 
@@ -30,9 +30,10 @@ class Settings(BaseSettings):
             f"@{self.db_host}:{self.db_port}/{self.db_name}"
         )
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    model_config = ConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+    )
 
 
 @lru_cache
